@@ -6,7 +6,7 @@ from threading import Thread
 # ========================================================
 # Contact Model
 # ========================================================
-PAGE_SIZE = 100
+PAGE_SIZE = 10
 
 
 class Contact:
