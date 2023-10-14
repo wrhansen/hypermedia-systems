@@ -79,3 +79,11 @@ def contacts_delete(contact_id=0):
     contact.delete()
     flash("Deleted Contact!")
     return redirect("/contacts", 303)
+
+
+@app.route("/contacts/<contact_id>/email", methods=["GET"])
+def contacts_email_get(contact_id=0):
+    c = Contact.find(contact_id)
+    c.email = request.args.get("email")
+    c.validate()
+    return c.errors.get("email") or ""
