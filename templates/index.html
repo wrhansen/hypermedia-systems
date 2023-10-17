@@ -10,32 +10,40 @@
     <input type="submit" value="Search" />
 </form>
 
-<table>
-    <thead>
-        <tr>
-            <th>First</th>
-            <th>Last</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
+<form>
+    <table>
+        <thead>
+            <tr>
+                <th>First</th>
+                <th>Last</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
 
-        {% include 'rows.html' %}
+            {% include 'rows.html' %}
 
-        {% if contacts|length == 10 %}
-        <tr>
-            <td colspan="5" style="text-align: center">
-                <button hx-target="closest tr" hx-swap="outerHTML" hx-select="tbody > tr"
-                    hx-get="/contacts?page={{ page + 1 }}">
-                    Load More
-                </button>
-            </td>
-        </tr>
-        {% endif %}
-    </tbody>
-</table>
+            {% if contacts|length == 10 %}
+            <tr>
+                <td colspan="5" style="text-align: center">
+                    <button hx-target="closest tr" hx-swap="outerHTML" hx-select="tbody > tr"
+                        hx-get="/contacts?page={{ page + 1 }}">
+                        Load More
+                    </button>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <button hx-delete="/contacts"
+            hx-confirm="Are you sure want to delete these contacts?"
+            hx-target="body">
+        Delete Selected Contacts
+    </button>
+</form>
 
 <p>
     <a href="/contacts/new">Add Contact</a> <span hx-get="/contacts/count" hx-trigger="revealed">

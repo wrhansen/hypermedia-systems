@@ -89,6 +89,18 @@ def contacts_delete(contact_id=0):
         return ""
 
 
+@app.route("/contacts", methods=["DELETE"])
+def contacts_delete_all():
+    contact_ids = list(map(int, request.form.getlist("selected_contact_ids")))
+    page = int(request.args.get("page", 1))
+    for contact_id in contact_ids:
+        contact = Contact.find(contact_id)
+        contact.delete()
+    flash("Deleted Contacts!")
+    contacts_set = Contact.all()
+    return render_template("index.html", contacts=contacts_set, page=page)
+
+
 @app.route("/contacts/<contact_id>/email", methods=["GET"])
 def contacts_email_get(contact_id=0):
     c = Contact.find(contact_id)
