@@ -1,4 +1,5 @@
 import secrets
+import time
 
 from flask import Flask, flash, redirect, render_template, request
 
@@ -21,7 +22,8 @@ def contacts():
     if search is not None:
         contacts_set = Contact.search(search)
         if request.headers.get("HX-TRIGGER") == "search":
-            return render_template("rows.html", contacts=contacts_set)
+            time.sleep(0.5)
+            return render_template("rows.html", contacts=contacts_set, page=page)
     else:
         contacts_set = Contact.all(page)
     return render_template("index.html", contacts=contacts_set, page=page)
@@ -90,3 +92,9 @@ def contacts_email_get(contact_id=0):
     c.email = request.args.get("email")
     c.validate()
     return c.errors.get("email") or ""
+
+
+@app.route("/contacts/count")
+def contacts_count():
+    count = Contact.count()
+    return "(" + str(count) + " total Contacts)"
