@@ -20,9 +20,10 @@ def contacts():
     page = int(request.args.get("page", 1))
     if search is not None:
         contacts_set = Contact.search(search)
+        if request.headers.get("HX-TRIGGER") == "search":
+            return render_template("rows.html", contacts=contacts_set)
     else:
         contacts_set = Contact.all(page)
-    print(f"PAGE: {page}, len contacts: {len(contacts_set)}")
     return render_template("index.html", contacts=contacts_set, page=page)
 
 
