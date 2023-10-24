@@ -2,6 +2,8 @@
 
 {% block content %}
 
+{% include "archive_ui.html" %}
+
 <form action="/contacts" method="get" class="tool-bar">
     <label for="search">Search Term</label>
     <input id="search" type="search" name="q" value="{{ request.args.get('q') or '' }}" hx-get="/contacts"
@@ -38,9 +40,7 @@
         </tbody>
     </table>
 
-    <button hx-delete="/contacts"
-            hx-confirm="Are you sure want to delete these contacts?"
-            hx-target="body">
+    <button hx-delete="/contacts" hx-confirm="Are you sure want to delete these contacts?" hx-target="body">
         Delete Selected Contacts
     </button>
 </form>

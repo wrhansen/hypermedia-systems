@@ -1,9 +1,9 @@
 import secrets
 import time
 
-from flask import Flask, flash, redirect, render_template, request
+from flask import Flask, flash, redirect, render_template, request, send_file
 
-from contacts_model import Contact
+from contacts_model import Archiver, Contact
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
@@ -26,7 +26,9 @@ def contacts():
             return render_template("rows.html", contacts=contacts_set, page=page)
     else:
         contacts_set = Contact.all(page)
-    return render_template("index.html", contacts=contacts_set, page=page)
+    return render_template(
+        "index.html", contacts=contacts_set, page=page, archiver=Archiver.get()
+    )
 
 
 @app.route("/contacts/new", methods=["GET"])
@@ -113,3 +115,29 @@ def contacts_email_get(contact_id=0):
 def contacts_count():
     count = Contact.count()
     return "(" + str(count) + " total Contacts)"
+
+
+@app.route("/contacts/archive", methods=["POST"])
+def start_archive():
+    archiver = Archiver.get()
+    archiver.run()
+    return render_template("archive_ui.html", archiver=archiver)
+
+
+@app.route("/contacts/archive", methods=["GET"])
+def archive_status():
+    archiver = Archiver.get()
+    return render_template("archive_ui.html", archiver=archiver)
+
+
+@app.route("/contacts/archive/file", methods=["GET"])
+def archive_content():
+    manager = Archiver.get()
+    return send_file(manager.archive_file(), "archive.json", as_attachment=True)
+
+
+@app.route("/contacts/archive", methods=["DELETE"])
+def reset_archive():
+    archiver = Archiver.get()
+    archiver.reset()
+    return render_template("archive_ui.html", archiver=archiver)
