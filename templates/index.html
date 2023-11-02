@@ -78,8 +78,12 @@
 
 <div x-data-="{ count: 0}">
     <output x-text="count"></output>
-    <button x-on:click="count++">Increment</button>
+    <button x-on:click="count++">Alpinejs Increment</button>
 </div>
 
+<div class="counter">
+    <output>0</output>
+    <button _="on click increment the textContent of the previous <output/>">Hyperscript Increment</button>
+</div>
 
 {% endblock %}
