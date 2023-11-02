@@ -1,7 +1,7 @@
 import secrets
 import time
 
-from flask import Flask, flash, redirect, render_template, request, send_file
+from flask import Flask, flash, jsonify, redirect, render_template, request, send_file
 
 from contacts_model import Archiver, Contact
 
@@ -143,3 +143,52 @@ def reset_archive():
     archiver = Archiver.get()
     archiver.reset()
     return render_template("archive_ui.html", archiver=archiver)
+
+
+@app.route("/api/v1/contacts", methods=["GET"])
+def json_contacts():
+    contacts_set = Contact.all()
+    contacts_dicts = [c.__dict__ for c in contacts_set]
+    return {"contacts": contacts_dicts}
+
+
+@app.route("/api/v1/contacts", methods=["POST"])
+def json_contacts_new():
+    c = Contact(
+        None,
+        request.form.get("first_name"),
+        request.form.get("last_name"),
+        request.form.get("email"),
+    )
+    if c.save():
+        return c.__dict__
+    else:
+        return {"errors": c.errors}, 400
+
+
+@app.route("/api/v1/contacts/<contact_id>", methods=["GET"])
+def json_contacts_view(contact_id=0):
+    contact = Contact.find(contact_id)
+    return contact.__dict__
+
+
+@app.route("/api/v1/contacts/<contact_id>", methods=["PUT"])
+def json_contacts_edit(contact_id):
+    c = Contact.find(contact_id)
+    c.update(
+        request.form["first_name"],
+        request.form["last_name"],
+        request.form["phone"],
+        request.form["email"],
+    )
+    if c.save():
+        return c.__dict__
+    else:
+        return {"errors": c.errors}, 400
+
+
+@app.route("/api/v1/contacts/<contact_id>", methods=["DELETE"])
+def json_contacts_delete(contact_id=0):
+    contact = Contact.find(contact_id)
+    contact.delete()
+    return jsonify({"success": True})
