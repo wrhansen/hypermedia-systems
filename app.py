@@ -1,7 +1,16 @@
 import secrets
 import time
 
-from flask import Flask, flash, jsonify, redirect, render_template, request, send_file
+from flask import (
+    Flask,
+    flash,
+    jsonify,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    send_file,
+)
 
 from contacts_model import Archiver, Contact
 
@@ -19,21 +28,21 @@ def index():
 def contacts():
     search = request.args.get("q")
     page = int(request.args.get("page", 1))
-    if search is not None:
+    rows_only = request.args.get("rows_only") == "true"
+    if search:
         contacts_set = Contact.search(search)
-        if request.headers.get("HX-TRIGGER") == "search":
-            time.sleep(0.5)
-            return render_template("rows.html", contacts=contacts_set, page=page)
     else:
         contacts_set = Contact.all(page)
-    return render_template(
-        "index.html", contacts=contacts_set, page=page, archiver=Archiver.get()
+
+    template_name = "hv/rows.xml" if rows_only else "hv/index.xml"
+    return render_to_response(
+        template_name, contacts=contacts_set, page=page, archiver=Archiver.get()
     )
 
 
 @app.route("/contacts/new", methods=["GET"])
 def contacts_get_new():
-    return render_template("new.html", contact=Contact())
+    return render_to_response("hv/new.xml", contact=Contact())
 
 
 @app.route("/contacts/new", methods=["POST"])
@@ -46,26 +55,26 @@ def contacts_new():
         request.form["email"],
     )
     if c.save():
-        flash("Created New Contact!")
-        return redirect("/contacts")
+        return render_to_response("hv/form_fields.xml", contact=c, saved=True)
     else:
-        return render_template("new.html", contact=c)
+        return render_to_response("hv/form_fields.xml", contact=c)
 
 
 @app.route("/contacts/<contact_id>")
 def contacts_view(contact_id=0):
     contact = Contact.find(contact_id)
-    return render_template("show.html", contact=contact)
+    return render_to_response("hv/show.xml", contact=contact)
 
 
 @app.route("/contacts/<contact_id>/edit", methods=["GET"])
 def contracts_edit_get(contact_id=0):
     contact = Contact.find(contact_id)
-    return render_template("edit.html", contact=contact)
+    return render_to_response("hv/edit.xml", contact=contact)
 
 
 @app.route("/contacts/<contact_id>/edit", methods=["POST"])
 def contacts_edit_post(contact_id=0):
+    print(f"REQUEST: {request.form}")
     contact = Contact.find(contact_id)
     contact.update(
         request.form["first_name"],
@@ -74,21 +83,16 @@ def contacts_edit_post(contact_id=0):
         request.form["email"],
     )
     if contact.save():
-        flash("Updated Contact!")
-        return redirect("/contacts/" + str(contact_id))
+        return render_to_response("hv/form_fields.xml", contact=contact, saved=True)
     else:
-        return render_template("edit.html", contact=contact)
+        return render_to_response("hv/form_fields.xml", contact=contact)
 
 
-@app.route("/contacts/<contact_id>", methods=["DELETE"])
+@app.route("/contacts/<contact_id>/delete", methods=["post"])
 def contacts_delete(contact_id=0):
     contact = Contact.find(contact_id)
     contact.delete()
-    if request.headers.get("HX-Trigger") == "delete-btn":
-        flash("Deleted Contact!")
-        return redirect("/contacts", 303)
-    else:
-        return ""
+    return render_to_response("hv/deleted.xml")
 
 
 @app.route("/contacts", methods=["DELETE"])
@@ -192,3 +196,10 @@ def json_contacts_delete(contact_id=0):
     contact = Contact.find(contact_id)
     contact.delete()
     return jsonify({"success": True})
+
+
+def render_to_response(template_name, *args, **kwargs):
+    content = render_template(template_name, *args, **kwargs)
+    response = make_response(content)
+    response.headers["Content-Type"] = "application/vnd.hyperview+xml"
+    return response

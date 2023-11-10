@@ -1,0 +1,30 @@
+{% extends 'hv/layout.xml' %}
+
+{% block header %}
+    <view style="button">
+        <behavior
+            trigger="press"
+            action="close"
+        />
+        <text style="button-label">Close</text>
+    </view>
+{% endblock %}
+
+{% block content %}
+<form>
+    <view id="form-fields">
+        {% include 'hv/form_fields.xml' %}
+    </view>
+
+    <view style="button">
+        <behavior
+            trigger="press"
+            action="replace-inner"
+            target="form-fields"
+            href="/contacts/new"
+            verb="post"
+        />
+        <text style="button-label">Add Contact</text>
+    </view>
+</form>
+{% endblock %}
