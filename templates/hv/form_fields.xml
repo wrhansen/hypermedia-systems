@@ -1,5 +1,6 @@
 <view style="edit-group" xmlns="https://hyperview.org/hyperview">
     {% if saved %}
+        {% include "hv/messages.xml" %}
         <behavior
             trigger="load"
             action="dispatch-event"

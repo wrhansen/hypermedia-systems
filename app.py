@@ -92,6 +92,8 @@ def contacts_edit_post(contact_id=0):
 def contacts_delete(contact_id=0):
     contact = Contact.find(contact_id)
     contact.delete()
+    flash("Deleted Contact!")
+
     return render_to_response("hv/deleted.xml")
 
 

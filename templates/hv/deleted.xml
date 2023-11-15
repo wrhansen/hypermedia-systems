@@ -1,4 +1,5 @@
 <view xmlns="https://hyperview.org/hyperview">
+    {% include "hv/messages.xml" %}
     <behavior trigger="load" action="dispatch-event" event-name="contact-updated" />
     <behavior trigger="load" action="back" />
 </view>
